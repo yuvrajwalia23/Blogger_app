@@ -1,0 +1,9 @@
+com\example\demo\DemoApplication.class
+com\example\demo\BlogPost.class
+com\example\demo\BlogPostRepository.class
+com\example\demo\UserController.class
+com\example\demo\BlogPostController.class
+com\example\demo\UserRepository.class
+com\example\demo\UserService.class
+com\example\demo\User.class
+com\example\demo\BlogPostService.class
