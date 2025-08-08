@@ -1,0 +1,76 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Public Blog Feed - Blogger</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <h2>Welcome to Blogger!</h2>
+  <p>
+    <a href="login.html">Login</a> | <a href="register.html">Register</a>
+  </p>
+
+  <div id="postContainer"></div>
+
+  <script>
+  let currentPage = 0;
+  const pageSize = 5;
+  const container = document.getElementById("postContainer");
+
+  function loadPosts(page = 0) {
+    fetch(`http://localhost:8080/api/posts?page=${page}&size=${pageSize}`)
+      .then(res => res.json())
+      .then(data => {
+        const posts = data.content; // because Page object has 'content'
+        container.innerHTML = '';
+
+        if (!posts || posts.length === 0) {
+          container.innerHTML = '<p>No posts available yet.</p>';
+          return;
+        }
+
+        posts.forEach(post => {
+          const div = document.createElement("div");
+          div.innerHTML = `
+            <div style="border:1px solid #ccc; padding:10px; margin:10px 0;">
+              <h3>${post.title}</h3>
+              <p>${post.content.length > 150 ? post.content.substring(0, 150) + "..." : post.content}</p>
+              <small>By ${post.user.name} on ${new Date(post.createdAt).toLocaleString()}</small>
+            </div>
+          `;
+          container.appendChild(div);
+        });
+
+        // ✅ Pagination buttons
+        const pagination = document.createElement("div");
+        pagination.innerHTML = `
+          <button onclick="prevPage()">Previous</button>
+          <span> Page ${data.number + 1} of ${data.totalPages} </span>
+          <button onclick="nextPage()">Next</button>
+        `;
+        container.appendChild(pagination);
+      })
+      .catch(() => {
+        container.innerHTML = "<p>Failed to load blog posts.</p>";
+      });
+  }
+
+  function nextPage() {
+    currentPage++;
+    loadPosts(currentPage);
+  }
+
+  function prevPage() {
+    if (currentPage > 0) {
+      currentPage--;
+      loadPosts(currentPage);
+    }
+  }
+
+  loadPosts();
+</script>
+</body>
+</html>

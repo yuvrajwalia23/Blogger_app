@@ -1,0 +1,59 @@
+<!-- edit-post.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Post - Blogger</title>
+  <link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+  <h2>Edit Blog Post</h2>
+  <button onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+
+  <form id="editForm">
+    <input type="text" id="title" placeholder="Post Title" required />
+    <textarea id="content" placeholder="Update your blog..." rows="10" required></textarea>
+    <button type="submit">Update Post</button>
+  </form>
+
+  <script>
+    const postId = sessionStorage.getItem("editPostId");
+    if (!postId) {
+      alert("No post selected.");
+      window.location.href = 'dashboard.html';
+    }
+
+    // Pre-fill form with post data
+    fetch(`http://localhost:8080/api/posts/${postId}`)
+      .then(res => res.json())
+      .then(post => {
+        document.getElementById('title').value = post.title;
+        document.getElementById('content').value = post.content;
+      });
+
+    // Handle form submission
+    document.getElementById('editForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const updatedPost = {
+        title: document.getElementById('title').value,
+        content: document.getElementById('content').value
+      };
+
+      fetch(`http://localhost:8080/api/posts/${postId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedPost)
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("Update failed");
+        alert("Post updated successfully!");
+        sessionStorage.removeItem("editPostId");
+        window.location.href = 'dashboard.html';
+      })
+      .catch(err => alert(err.message));
+    });
+  </script>
+</body>
+</html>
